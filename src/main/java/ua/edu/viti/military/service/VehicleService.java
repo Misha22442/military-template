@@ -2,6 +2,8 @@ package ua.edu.viti.military.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ua.edu.viti.military.dto.request.VehicleCreateDTO;
@@ -18,6 +20,7 @@ import ua.edu.viti.military.exception.ResourceNotFoundException;
 import ua.edu.viti.military.repository.VehicleRepository;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,6 +34,7 @@ public class VehicleService {
     private final DriverService driverService;
 
     @Transactional
+    @CacheEvict(value = "vehiclesList", allEntries = true)
     public VehicleResponseDTO create(VehicleCreateDTO dto) {
         log.info("Creating new vehicle with registration number: {}", dto.getRegistrationNumber());
 
@@ -77,22 +81,25 @@ public class VehicleService {
         vehicle.setDriver(driver);
         vehicle.setStatus(VehicleStatus.OPERATIONAL);
 
-        Vehicle saved = vehicleRepository.save(vehicle);
+        Vehicle saved = Objects.requireNonNull(vehicleRepository.save(vehicle));
         log.info("Vehicle created with ID: {}", saved.getId());
 
         return toResponseDTO(saved);
     }
 
+    @Cacheable(value = "vehicles", key = "#id")
     public VehicleResponseDTO getById(Long id) {
         log.debug("Fetching vehicle with ID: {}", id);
 
-        Vehicle vehicle = vehicleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Транспорт з ID " + id + " не знайдено"));
+        Objects.requireNonNull(id, "id must not be null");
+        Vehicle vehicle = Objects.requireNonNull(vehicleRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException(
+                "Транспорт з ID " + id + " не знайдено")));
 
         return toResponseDTO(vehicle);
     }
 
+    @Cacheable(value = "vehiclesList", key = "{#status, #categoryId}")
     public List<VehicleResponseDTO> getAll(VehicleStatus status, Long categoryId) {
         log.debug("Fetching all vehicles with status: {}, categoryId: {}", status, categoryId);
 
@@ -113,10 +120,12 @@ public class VehicleService {
                 .collect(Collectors.toList());
     }
 
+    @CacheEvict(value = {"vehicles", "vehiclesList"}, key = "#id", allEntries = true)
     @Transactional
     public VehicleResponseDTO update(Long id, VehicleUpdateDTO dto) {
         log.info("Updating vehicle with ID: {}", id);
 
+        Objects.requireNonNull(id, "id must not be null");
         Vehicle vehicle = vehicleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Транспорт з ID " + id + " не знайдено"));
@@ -175,29 +184,31 @@ public class VehicleService {
             vehicle.setStatus(dto.getStatus());
         }
 
-        Vehicle updated = vehicleRepository.save(vehicle);
+        Vehicle updated = Objects.requireNonNull(vehicleRepository.save(vehicle));
         log.info("Vehicle with ID {} updated successfully", id);
 
         return toResponseDTO(updated);
     }
 
     @Transactional
+    @CacheEvict(value = {"vehicles", "vehiclesList"}, key = "#id", allEntries = true)
     public void delete(Long id) {
         log.info("Deleting vehicle with ID: {}", id);
-
+        Objects.requireNonNull(id, "id must not be null");
         if (!vehicleRepository.existsById(id)) {
             throw new ResourceNotFoundException(
                     "Транспорт з ID " + id + " не знайдено");
         }
 
-        vehicleRepository.deleteById(id);
+        vehicleRepository.deleteById(Objects.requireNonNull(id));
         log.info("Vehicle with ID {} deleted successfully", id);
     }
 
     public Vehicle getEntityById(Long id) {
-        return vehicleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Транспорт з ID " + id + " не знайдено"));
+        Objects.requireNonNull(id, "id must not be null");
+        return Objects.requireNonNull(vehicleRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException(
+                "Транспорт з ID " + id + " не знайдено")));
     }
 
     public void validateVehicleForAssignment(Vehicle vehicle) {

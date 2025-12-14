@@ -1,114 +1,52 @@
 package ua.edu.viti.military.mapper;
 
-import org.springframework.stereotype.Component;
+import org.mapstruct.*;
 import ua.edu.viti.military.dto.VehicleCreateDto;
 import ua.edu.viti.military.dto.VehicleResponseDto;
 import ua.edu.viti.military.dto.VehicleUpdateDto;
 import ua.edu.viti.military.entity.Vehicle;
 import ua.edu.viti.military.entity.VehicleCategory;
-import ua.edu.viti.military.entity.VehicleStatus;
 
 /**
- * Mapper for Vehicle entity.
+ * MapStruct mapper for Vehicle entity with custom maintenance logic.
  */
-@Component
-public class VehicleMapper {
+@Mapper(componentModel = "spring", uses = {VehicleCategoryMapper.class})
+public interface VehicleMapper {
 
-    public Vehicle toEntity(VehicleCreateDto dto, VehicleCategory category) {
-        Vehicle vehicle = new Vehicle();
-        vehicle.setModel(dto.getModel());
-        vehicle.setRegistrationNumber(dto.getRegistrationNumber());
-        vehicle.setMileage(dto.getMileage() != null ? dto.getMileage() : 0);
-        vehicle.setEngineNumber(dto.getEngineNumber());
-        vehicle.setChassisNumber(dto.getChassisNumber());
-        vehicle.setFuelType(dto.getFuelType());
-        vehicle.setFuelConsumption(dto.getFuelConsumption());
-        vehicle.setMaintenanceIntervalKm(dto.getMaintenanceIntervalKm() != null ? dto.getMaintenanceIntervalKm() : 10000);
-        vehicle.setLastMaintenanceDate(dto.getLastMaintenanceDate());
-        vehicle.setLastMaintenanceMileage(dto.getLastMaintenanceMileage() != null ? dto.getLastMaintenanceMileage() : 0);
-        vehicle.setManufactureYear(dto.getManufactureYear());
-        vehicle.setCategory(category);
-        vehicle.setStatus(VehicleStatus.OPERATIONAL);
-        return vehicle;
-    }
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "driver", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "mileage", defaultValue = "0")
+    @Mapping(target = "maintenanceIntervalKm", defaultValue = "10000")
+    @Mapping(target = "lastMaintenanceMileage", defaultValue = "0")
+    @Mapping(target = "status", constant = "OPERATIONAL")
+    Vehicle toEntity(VehicleCreateDto dto, VehicleCategory category);
 
-    public VehicleResponseDto toResponseDto(Vehicle entity) {
-        String maintenanceStatus = getMaintenanceStatus(entity);
-        int kmUntilMaintenance = getKilometersUntilMaintenance(entity);
-        
-        VehicleResponseDto dto = new VehicleResponseDto();
-        dto.setId(entity.getId());
-        dto.setModel(entity.getModel());
-        dto.setRegistrationNumber(entity.getRegistrationNumber());
-        dto.setMileage(entity.getMileage());
-        dto.setEngineNumber(entity.getEngineNumber());
-        dto.setChassisNumber(entity.getChassisNumber());
-        dto.setFuelType(entity.getFuelType());
-        dto.setFuelConsumption(entity.getFuelConsumption());
-        dto.setMaintenanceIntervalKm(entity.getMaintenanceIntervalKm());
-        dto.setLastMaintenanceDate(entity.getLastMaintenanceDate());
-        dto.setLastMaintenanceMileage(entity.getLastMaintenanceMileage());
-        dto.setManufactureYear(entity.getManufactureYear());
-        dto.setStatus(entity.getStatus());
-        
-        if (entity.getCategory() != null) {
-            dto.setCategoryId(entity.getCategory().getId());
-            dto.setCategoryName(entity.getCategory().getName());
-        }
-        
+    @Mapping(target = "categoryId", source = "category.id")
+    @Mapping(target = "categoryName", source = "category.name")
+    @Mapping(target = "driverId", source = "driver.id")
+    @Mapping(target = "driverFullName", expression = "java(getDriverFullName(entity))")
+    @Mapping(target = "kmUntilMaintenance", expression = "java(getKilometersUntilMaintenance(entity))")
+    @Mapping(target = "maintenanceStatus", expression = "java(getMaintenanceStatus(entity))")
+    VehicleResponseDto toResponseDto(Vehicle entity);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "category", ignore = true)
+    @Mapping(target = "driver", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    void updateEntity(@MappingTarget Vehicle entity, VehicleUpdateDto dto);
+
+    default String getDriverFullName(Vehicle entity) {
         if (entity.getDriver() != null) {
-            dto.setDriverId(entity.getDriver().getId());
-            dto.setDriverFullName(entity.getDriver().getFirstName() + " " + entity.getDriver().getLastName());
+            return entity.getDriver().getFirstName() + " " + entity.getDriver().getLastName();
         }
-        
-        dto.setKmUntilMaintenance(kmUntilMaintenance);
-        dto.setMaintenanceStatus(maintenanceStatus);
-        dto.setCreatedAt(entity.getCreatedAt());
-        dto.setUpdatedAt(entity.getUpdatedAt());
-        
-        return dto;
+        return null;
     }
 
-    public void updateEntity(Vehicle entity, VehicleUpdateDto dto) {
-        if (dto.getModel() != null) {
-            entity.setModel(dto.getModel());
-        }
-        if (dto.getRegistrationNumber() != null) {
-            entity.setRegistrationNumber(dto.getRegistrationNumber());
-        }
-        if (dto.getMileage() != null) {
-            entity.setMileage(dto.getMileage());
-        }
-        if (dto.getEngineNumber() != null) {
-            entity.setEngineNumber(dto.getEngineNumber());
-        }
-        if (dto.getChassisNumber() != null) {
-            entity.setChassisNumber(dto.getChassisNumber());
-        }
-        if (dto.getFuelType() != null) {
-            entity.setFuelType(dto.getFuelType());
-        }
-        if (dto.getFuelConsumption() != null) {
-            entity.setFuelConsumption(dto.getFuelConsumption());
-        }
-        if (dto.getMaintenanceIntervalKm() != null) {
-            entity.setMaintenanceIntervalKm(dto.getMaintenanceIntervalKm());
-        }
-        if (dto.getLastMaintenanceDate() != null) {
-            entity.setLastMaintenanceDate(dto.getLastMaintenanceDate());
-        }
-        if (dto.getLastMaintenanceMileage() != null) {
-            entity.setLastMaintenanceMileage(dto.getLastMaintenanceMileage());
-        }
-        if (dto.getManufactureYear() != null) {
-            entity.setManufactureYear(dto.getManufactureYear());
-        }
-        if (dto.getStatus() != null) {
-            entity.setStatus(dto.getStatus());
-        }
-    }
-
-    private int getKilometersUntilMaintenance(Vehicle entity) {
+    default int getKilometersUntilMaintenance(Vehicle entity) {
         if (entity.getMileage() == null || entity.getLastMaintenanceMileage() == null 
                 || entity.getMaintenanceIntervalKm() == null) {
             return 0;
@@ -117,16 +55,16 @@ public class VehicleMapper {
         return entity.getMaintenanceIntervalKm() - kmSinceLastMaintenance;
     }
 
-    private boolean isMaintenanceOverdue(Vehicle entity) {
+    default boolean isMaintenanceOverdue(Vehicle entity) {
         return getKilometersUntilMaintenance(entity) < 0;
     }
 
-    private boolean isMaintenanceApproaching(Vehicle entity) {
+    default boolean isMaintenanceApproaching(Vehicle entity) {
         int kmUntil = getKilometersUntilMaintenance(entity);
         return kmUntil >= 0 && kmUntil <= 1000;
     }
 
-    private String getMaintenanceStatus(Vehicle entity) {
+    default String getMaintenanceStatus(Vehicle entity) {
         if (isMaintenanceOverdue(entity)) {
             return "ПРОСТРОЧЕНО! Потрібне негайне ТО";
         } else if (isMaintenanceApproaching(entity)) {

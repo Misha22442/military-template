@@ -13,6 +13,7 @@ import ua.edu.viti.military.exception.ResourceNotFoundException;
 import ua.edu.viti.military.repository.DriverRepository;
 
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,7 +52,7 @@ public class DriverService {
         driver.setPhoneNumber(dto.getPhoneNumber());
         driver.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
 
-        Driver saved = driverRepository.save(driver);
+        Driver saved = Objects.requireNonNull(driverRepository.save(driver));
         log.info("Driver created with ID: {}", saved.getId());
 
         return toResponseDTO(saved);
@@ -60,9 +61,10 @@ public class DriverService {
     public DriverResponseDTO getById(Long id) {
         log.debug("Fetching driver with ID: {}", id);
 
-        Driver driver = driverRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Водія з ID " + id + " не знайдено"));
+        Objects.requireNonNull(id, "id must not be null");
+        Driver driver = Objects.requireNonNull(driverRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException(
+                "Водія з ID " + id + " не знайдено")));
 
         return toResponseDTO(driver);
     }
@@ -87,6 +89,7 @@ public class DriverService {
     public DriverResponseDTO update(Long id, DriverUpdateDTO dto) {
         log.info("Updating driver with ID: {}", id);
 
+        Objects.requireNonNull(id, "id must not be null");
         Driver driver = driverRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Водія з ID " + id + " не знайдено"));
@@ -126,7 +129,7 @@ public class DriverService {
             driver.setIsActive(dto.getIsActive());
         }
 
-        Driver updated = driverRepository.save(driver);
+        Driver updated = Objects.requireNonNull(driverRepository.save(driver));
         log.info("Driver with ID {} updated successfully", id);
 
         return toResponseDTO(updated);
@@ -135,13 +138,13 @@ public class DriverService {
     @Transactional
     public void delete(Long id) {
         log.info("Deleting driver with ID: {}", id);
-
+        Objects.requireNonNull(id, "id must not be null");
         if (!driverRepository.existsById(id)) {
             throw new ResourceNotFoundException(
                     "Водія з ID " + id + " не знайдено");
         }
 
-        driverRepository.deleteById(id);
+        driverRepository.deleteById(Objects.requireNonNull(id));
         log.info("Driver with ID {} deleted successfully", id);
     }
 
@@ -185,9 +188,10 @@ public class DriverService {
     }
 
     public Driver getEntityById(Long id) {
-        return driverRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Водія з ID " + id + " не знайдено"));
+        Objects.requireNonNull(id, "id must not be null");
+        return Objects.requireNonNull(driverRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException(
+                "Водія з ID " + id + " не знайдено")));
     }
 
     public String getFullName(Driver driver) {

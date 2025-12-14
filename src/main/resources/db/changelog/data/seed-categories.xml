@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="seed-001-categories" author="military-system" context="dev">
+        <comment>Adding initial vehicle categories</comment>
+        
+        <insert tableName="vehicle_categories">
+            <column name="name" value="Легковий автомобіль"/>
+            <column name="code" value="CAR-001"/>
+            <column name="description" value="Легкові службові автомобілі"/>
+            <column name="requires_special_license" valueBoolean="false"/>
+            <column name="max_weight_kg" valueNumeric="3500"/>
+        </insert>
+        
+        <insert tableName="vehicle_categories">
+            <column name="name" value="Вантажний автомобіль"/>
+            <column name="code" value="TRUCK-001"/>
+            <column name="description" value="Вантажні автомобілі для перевезення вантажів"/>
+            <column name="requires_special_license" valueBoolean="true"/>
+            <column name="max_weight_kg" valueNumeric="12000"/>
+        </insert>
+        
+        <insert tableName="vehicle_categories">
+            <column name="name" value="Бронетранспортер"/>
+            <column name="code" value="APC-001"/>
+            <column name="description" value="Бронетранспортери для перевезення особового складу"/>
+            <column name="requires_special_license" valueBoolean="true"/>
+            <column name="max_weight_kg" valueNumeric="15000"/>
+        </insert>
+        
+        <insert tableName="vehicle_categories">
+            <column name="name" value="Спеціальна техніка"/>
+            <column name="code" value="SPEC-001"/>
+            <column name="description" value="Спеціальна військова техніка"/>
+            <column name="requires_special_license" valueBoolean="true"/>
+            <column name="max_weight_kg" valueNumeric="20000"/>
+        </insert>
+        
+        <rollback>
+            <delete tableName="vehicle_categories">
+                <where>code IN ('CAR-001', 'TRUCK-001', 'APC-001', 'SPEC-001')</where>
+            </delete>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

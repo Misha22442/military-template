@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="seed-002-test-data" author="military-system" context="dev">
+        <comment>Adding test drivers and vehicles for development</comment>
+        
+        <!-- Test Drivers -->
+        <insert tableName="drivers">
+            <column name="military_id" value="MIL-001"/>
+            <column name="first_name" value="Іван"/>
+            <column name="last_name" value="Петренко"/>
+            <column name="middle_name" value="Олександрович"/>
+            <column name="rank" value="Старший лейтенант"/>
+            <column name="license_number" value="LIC-001"/>
+            <column name="license_categories" value="B,C,D"/>
+            <column name="license_expiry_date" value="2026-12-31"/>
+            <column name="date_of_birth" value="1990-05-15"/>
+            <column name="phone_number" value="+380501234567"/>
+            <column name="unit" value="1-а механізована бригада"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="hire_date" value="2015-01-10"/>
+            <column name="total_experience_years" valueNumeric="9"/>
+        </insert>
+        
+        <insert tableName="drivers">
+            <column name="military_id" value="MIL-002"/>
+            <column name="first_name" value="Олег"/>
+            <column name="last_name" value="Коваленко"/>
+            <column name="middle_name" value="Васильович"/>
+            <column name="rank" value="Капітан"/>
+            <column name="license_number" value="LIC-002"/>
+            <column name="license_categories" value="B,C,D,E"/>
+            <column name="license_expiry_date" value="2027-06-30"/>
+            <column name="date_of_birth" value="1988-08-22"/>
+            <column name="phone_number" value="+380502345678"/>
+            <column name="unit" value="2-а танкова бригада"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="hire_date" value="2012-03-15"/>
+            <column name="total_experience_years" valueNumeric="12"/>
+        </insert>
+        
+        <insert tableName="drivers">
+            <column name="military_id" value="MIL-003"/>
+            <column name="first_name" value="Сергій"/>
+            <column name="last_name" value="Мельник"/>
+            <column name="middle_name" value="Миколайович"/>
+            <column name="rank" value="Лейтенант"/>
+            <column name="license_number" value="LIC-003"/>
+            <column name="license_categories" value="B,C"/>
+            <column name="license_expiry_date" value="2025-12-31"/>
+            <column name="date_of_birth" value="1995-11-10"/>
+            <column name="phone_number" value="+380503456789"/>
+            <column name="unit" value="3-я артилерійська бригада"/>
+            <column name="status" value="AVAILABLE"/>
+            <column name="hire_date" value="2018-06-01"/>
+            <column name="total_experience_years" valueNumeric="6"/>
+        </insert>
+        
+        <!-- Test Vehicles -->
+        <sql>
+            INSERT INTO vehicles (model, registration_number, category_id, engine_number, chassis_number, 
+                                manufacture_year, mileage, fuel_type, fuel_capacity, status, 
+                                last_maintenance_date, next_maintenance_date, purchase_date)
+            SELECT 'УАЗ-469', 'AA1234BB', c.id, 'ENG-001', 'CHAS-001',
+                   2018, 45000, 'GASOLINE', 78.0, 'AVAILABLE',
+                   '2024-11-01', '2025-02-01', '2018-03-15'
+            FROM vehicle_categories c WHERE c.code = 'CAR-001';
+            
+            INSERT INTO vehicles (model, registration_number, category_id, engine_number, chassis_number,
+                                manufacture_year, mileage, fuel_type, fuel_capacity, status,
+                                last_maintenance_date, next_maintenance_date, purchase_date)
+            SELECT 'КрАЗ-6322', 'BB5678CC', c.id, 'ENG-002', 'CHAS-002',
+                   2019, 62000, 'DIESEL', 350.0, 'AVAILABLE',
+                   '2024-10-15', '2025-01-15', '2019-06-20'
+            FROM vehicle_categories c WHERE c.code = 'TRUCK-001';
+            
+            INSERT INTO vehicles (model, registration_number, category_id, engine_number, chassis_number,
+                                manufacture_year, mileage, fuel_type, fuel_capacity, status,
+                                last_maintenance_date, next_maintenance_date, purchase_date)
+            SELECT 'БТР-80', 'CC9012DD', c.id, 'ENG-003', 'CHAS-003',
+                   2020, 28000, 'DIESEL', 290.0, 'IN_USE',
+                   '2024-12-01', '2025-03-01', '2020-01-10'
+            FROM vehicle_categories c WHERE c.code = 'APC-001';
+            
+            INSERT INTO vehicles (model, registration_number, category_id, engine_number, chassis_number,
+                                manufacture_year, mileage, fuel_type, fuel_capacity, status,
+                                last_maintenance_date, next_maintenance_date, purchase_date)
+            SELECT 'Урал-4320', 'DD3456EE', c.id, 'ENG-004', 'CHAS-004',
+                   2017, 78000, 'DIESEL', 360.0, 'AVAILABLE',
+                   '2024-09-20', '2024-12-20', '2017-05-05'
+            FROM vehicle_categories c WHERE c.code = 'TRUCK-001';
+            
+            INSERT INTO vehicles (model, registration_number, category_id, engine_number, chassis_number,
+                                manufacture_year, mileage, fuel_type, fuel_capacity, status,
+                                last_maintenance_date, next_maintenance_date, purchase_date)
+            SELECT 'ГАЗ-66', 'EE7890FF', c.id, 'ENG-005', 'CHAS-005',
+                   2016, 92000, 'GASOLINE', 210.0, 'MAINTENANCE',
+                   '2024-12-10', '2025-03-10', '2016-08-12'
+            FROM vehicle_categories c WHERE c.code = 'SPEC-001';
+        </sql>
+        
+        <rollback>
+            <delete tableName="vehicles">
+                <where>registration_number IN ('AA1234BB', 'BB5678CC', 'CC9012DD', 'DD3456EE', 'EE7890FF')</where>
+            </delete>
+            <delete tableName="drivers">
+                <where>military_id IN ('MIL-001', 'MIL-002', 'MIL-003')</where>
+            </delete>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

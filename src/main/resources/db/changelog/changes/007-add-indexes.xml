@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="007-add-indexes" author="military-system">
+        <comment>Adding indexes for performance optimization</comment>
+        
+        <!-- Vehicle indexes -->
+        <createIndex indexName="idx_vehicles_status" tableName="vehicles">
+            <column name="status"/>
+        </createIndex>
+        
+        <createIndex indexName="idx_vehicles_category" tableName="vehicles">
+            <column name="category_id"/>
+        </createIndex>
+        
+        <createIndex indexName="idx_vehicles_registration" tableName="vehicles">
+            <column name="registration_number"/>
+        </createIndex>
+        
+        <!-- Driver indexes -->
+        <createIndex indexName="idx_drivers_status" tableName="drivers">
+            <column name="status"/>
+        </createIndex>
+        
+        <createIndex indexName="idx_drivers_military_id" tableName="drivers">
+            <column name="military_id"/>
+        </createIndex>
+        
+        <!-- Assignment indexes -->
+        <createIndex indexName="idx_assignments_vehicle" tableName="vehicle_assignments">
+            <column name="vehicle_id"/>
+        </createIndex>
+        
+        <createIndex indexName="idx_assignments_driver" tableName="vehicle_assignments">
+            <column name="driver_id"/>
+        </createIndex>
+        
+        <createIndex indexName="idx_assignments_active" tableName="vehicle_assignments">
+            <column name="is_active"/>
+        </createIndex>
+        
+        <!-- Movement log indexes -->
+        <createIndex indexName="idx_movement_logs_vehicle" tableName="vehicle_movement_logs">
+            <column name="vehicle_id"/>
+        </createIndex>
+        
+        <createIndex indexName="idx_movement_logs_type" tableName="vehicle_movement_logs">
+            <column name="type"/>
+        </createIndex>
+        
+        <createIndex indexName="idx_movement_logs_date" tableName="vehicle_movement_logs">
+            <column name="performed_at" descending="true"/>
+        </createIndex>
+        
+        <!-- Composite index for frequent queries -->
+        <createIndex indexName="idx_vehicles_status_category" tableName="vehicles">
+            <column name="status"/>
+            <column name="category_id"/>
+        </createIndex>
+        
+        <rollback>
+            <dropIndex indexName="idx_vehicles_status" tableName="vehicles"/>
+            <dropIndex indexName="idx_vehicles_category" tableName="vehicles"/>
+            <dropIndex indexName="idx_vehicles_registration" tableName="vehicles"/>
+            <dropIndex indexName="idx_drivers_status" tableName="drivers"/>
+            <dropIndex indexName="idx_drivers_military_id" tableName="drivers"/>
+            <dropIndex indexName="idx_assignments_vehicle" tableName="vehicle_assignments"/>
+            <dropIndex indexName="idx_assignments_driver" tableName="vehicle_assignments"/>
+            <dropIndex indexName="idx_assignments_active" tableName="vehicle_assignments"/>
+            <dropIndex indexName="idx_movement_logs_vehicle" tableName="vehicle_movement_logs"/>
+            <dropIndex indexName="idx_movement_logs_type" tableName="vehicle_movement_logs"/>
+            <dropIndex indexName="idx_movement_logs_date" tableName="vehicle_movement_logs"/>
+            <dropIndex indexName="idx_vehicles_status_category" tableName="vehicles"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

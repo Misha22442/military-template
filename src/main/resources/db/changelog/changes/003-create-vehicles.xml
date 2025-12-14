@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="003-create-vehicles" author="military-system">
+        <comment>Creating vehicles table</comment>
+        
+        <createTable tableName="vehicles">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            
+            <column name="model" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            
+            <column name="registration_number" type="VARCHAR(20)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            
+            <column name="category_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            
+            <column name="engine_number" type="VARCHAR(50)">
+                <constraints unique="true"/>
+            </column>
+            
+            <column name="chassis_number" type="VARCHAR(50)">
+                <constraints unique="true"/>
+            </column>
+            
+            <column name="manufacture_year" type="INTEGER"/>
+            
+            <column name="mileage" type="INTEGER" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            
+            <column name="fuel_type" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            
+            <column name="fuel_capacity" type="DECIMAL(10,2)"/>
+            
+            <column name="status" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            
+            <column name="last_maintenance_date" type="DATE"/>
+            
+            <column name="next_maintenance_date" type="DATE"/>
+            
+            <column name="purchase_date" type="DATE"/>
+            
+            <column name="notes" type="VARCHAR(500)"/>
+            
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        
+        <addForeignKeyConstraint 
+            baseTableName="vehicles"
+            baseColumnNames="category_id"
+            referencedTableName="vehicle_categories"
+            referencedColumnNames="id"
+            constraintName="fk_vehicles_category"
+            onDelete="RESTRICT"/>
+        
+        <rollback>
+            <dropForeignKeyConstraint 
+                baseTableName="vehicles"
+                constraintName="fk_vehicles_category"/>
+            <dropTable tableName="vehicles"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

@@ -19,6 +19,7 @@ import ua.edu.viti.military.repository.VehicleAssignmentRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -69,7 +70,7 @@ public class VehicleAssignmentService {
         VehicleAssignment assignment = assignmentMapper.toEntity(dto, vehicle, driver);
         assignment.setStartMileage(vehicle.getMileage());
 
-        VehicleAssignment saved = assignmentRepository.save(assignment);
+        VehicleAssignment saved = Objects.requireNonNull(assignmentRepository.save(assignment));
 
         log.info("Assignment created with ID: {}", saved.getId());
         return assignmentMapper.toResponseDto(saved);
@@ -81,8 +82,9 @@ public class VehicleAssignmentService {
     public VehicleAssignmentResponseDto getById(Long id) {
         log.debug("Fetching assignment with ID: {}", id);
 
-        VehicleAssignment assignment = assignmentRepository.findByIdWithDetails(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Призначення", id));
+        Objects.requireNonNull(id, "id must not be null");
+        VehicleAssignment assignment = Objects.requireNonNull(assignmentRepository.findByIdWithDetails(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Призначення", id)));
 
         return assignmentMapper.toResponseDto(assignment);
     }
@@ -137,8 +139,9 @@ public class VehicleAssignmentService {
     public VehicleAssignmentResponseDto getActiveByVehicle(Long vehicleId) {
         log.debug("Fetching active assignment for vehicle ID: {}", vehicleId);
 
-        VehicleAssignment assignment = assignmentRepository.findActiveAssignmentByVehicleId(vehicleId)
-                .orElseThrow(() -> new ResourceNotFoundException("Активне призначення для транспорту", vehicleId));
+        Objects.requireNonNull(vehicleId, "vehicleId must not be null");
+        VehicleAssignment assignment = Objects.requireNonNull(assignmentRepository.findActiveAssignmentByVehicleId(vehicleId)
+            .orElseThrow(() -> new ResourceNotFoundException("Активне призначення для транспорту", vehicleId)));
 
         return assignmentMapper.toResponseDto(assignment);
     }
@@ -183,8 +186,9 @@ public class VehicleAssignmentService {
     public VehicleAssignmentResponseDto endAssignment(Long id, VehicleAssignmentEndDto dto) {
         log.info("Ending assignment with ID: {}", id);
 
-        VehicleAssignment assignment = assignmentRepository.findByIdWithDetails(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Призначення", id));
+        Objects.requireNonNull(id, "id must not be null");
+        VehicleAssignment assignment = Objects.requireNonNull(assignmentRepository.findByIdWithDetails(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Призначення", id)));
 
         if (!assignment.getIsActive()) {
             throw new BusinessRuleException("Призначення вже завершено");
@@ -201,7 +205,7 @@ public class VehicleAssignmentService {
         Vehicle vehicle = assignment.getVehicle();
         vehicle.setMileage(dto.getEndMileage());
 
-        VehicleAssignment updated = assignmentRepository.save(assignment);
+        VehicleAssignment updated = Objects.requireNonNull(assignmentRepository.save(assignment));
 
         log.info("Assignment with ID {} ended successfully", id);
         return assignmentMapper.toResponseDto(updated);
@@ -213,12 +217,12 @@ public class VehicleAssignmentService {
     @Transactional
     public void delete(Long id) {
         log.info("Deleting assignment with ID: {}", id);
-
+        Objects.requireNonNull(id, "id must not be null");
         if (!assignmentRepository.existsById(id)) {
             throw new ResourceNotFoundException("Призначення", id);
         }
 
-        assignmentRepository.deleteById(id);
+        assignmentRepository.deleteById(Objects.requireNonNull(id));
         log.info("Assignment with ID {} deleted successfully", id);
     }
 

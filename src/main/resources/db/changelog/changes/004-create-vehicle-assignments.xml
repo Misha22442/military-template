@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="004-create-vehicle-assignments" author="military-system">
+        <comment>Creating vehicle assignments table</comment>
+        
+        <createTable tableName="vehicle_assignments">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            
+            <column name="vehicle_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            
+            <column name="driver_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            
+            <column name="assignment_date" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            
+            <column name="end_date" type="TIMESTAMP"/>
+            
+            <column name="purpose" type="VARCHAR(500)"/>
+            
+            <column name="start_mileage" type="INTEGER"/>
+            
+            <column name="end_mileage" type="INTEGER"/>
+            
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true"/>
+        </createTable>
+        
+        <addForeignKeyConstraint 
+            baseTableName="vehicle_assignments"
+            baseColumnNames="vehicle_id"
+            referencedTableName="vehicles"
+            referencedColumnNames="id"
+            constraintName="fk_assignments_vehicle"
+            onDelete="RESTRICT"/>
+        
+        <addForeignKeyConstraint 
+            baseTableName="vehicle_assignments"
+            baseColumnNames="driver_id"
+            referencedTableName="drivers"
+            referencedColumnNames="id"
+            constraintName="fk_assignments_driver"
+            onDelete="RESTRICT"/>
+        
+        <rollback>
+            <dropForeignKeyConstraint 
+                baseTableName="vehicle_assignments"
+                constraintName="fk_assignments_vehicle"/>
+            <dropForeignKeyConstraint 
+                baseTableName="vehicle_assignments"
+                constraintName="fk_assignments_driver"/>
+            <dropTable tableName="vehicle_assignments"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

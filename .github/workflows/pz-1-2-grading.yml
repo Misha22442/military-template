@@ -9,7 +9,7 @@ on:
       - 'pom.xml'
 
 env:
-  JAVA_VERSION: '17'
+  JAVA_VERSION: '21'
   MAVEN_OPTS: -Xmx1024m
 
 jobs:

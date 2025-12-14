@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ua.edu.viti.military.dto.request.VehicleCreateDTO;
 import ua.edu.viti.military.dto.request.VehicleUpdateDTO;
@@ -46,6 +47,7 @@ public class VehicleController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR')")
     public ResponseEntity<VehicleResponseDTO> create(
             @Valid @RequestBody VehicleCreateDTO dto) {
         log.info("POST /api/vehicles - Creating new vehicle with registration: {}", dto.getRegistrationNumber());
@@ -103,6 +105,7 @@ public class VehicleController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR')")
     public ResponseEntity<VehicleResponseDTO> update(
             @Parameter(description = "ID транспорту") @PathVariable Long id,
             @Valid @RequestBody VehicleUpdateDTO dto) {
@@ -119,6 +122,7 @@ public class VehicleController {
             @ApiResponse(responseCode = "404", description = "Транспорт не знайдено",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
             @Parameter(description = "ID транспорту") @PathVariable Long id) {

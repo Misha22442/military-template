@@ -12,6 +12,7 @@ import ua.edu.viti.military.exception.ResourceNotFoundException;
 import ua.edu.viti.military.repository.VehicleCategoryRepository;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,7 +44,7 @@ public class VehicleCategoryService {
         category.setRequiredLicense(dto.getRequiredLicense());
         category.setMaxLoadCapacity(dto.getMaxLoadCapacity());
 
-        VehicleCategory saved = categoryRepository.save(category);
+        VehicleCategory saved = Objects.requireNonNull(categoryRepository.save(category));
         log.info("Vehicle category created with ID: {}", saved.getId());
 
         return toResponseDTO(saved);
@@ -52,9 +53,10 @@ public class VehicleCategoryService {
     public VehicleCategoryResponseDTO getById(Long id) {
         log.debug("Fetching vehicle category with ID: {}", id);
 
-        VehicleCategory category = categoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Категорію з ID " + id + " не знайдено"));
+        Objects.requireNonNull(id, "id must not be null");
+        VehicleCategory category = Objects.requireNonNull(categoryRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException(
+                "Категорію з ID " + id + " не знайдено")));
 
         return toResponseDTO(category);
     }
@@ -72,9 +74,10 @@ public class VehicleCategoryService {
     public VehicleCategoryResponseDTO update(Long id, VehicleCategoryCreateDTO dto) {
         log.info("Updating vehicle category with ID: {}", id);
 
-        VehicleCategory category = categoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Категорію з ID " + id + " не знайдено"));
+        Objects.requireNonNull(id, "id must not be null");
+        VehicleCategory category = Objects.requireNonNull(categoryRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException(
+                "Категорію з ID " + id + " не знайдено")));
 
         if (!category.getCode().equals(dto.getCode()) 
                 && categoryRepository.existsByCode(dto.getCode())) {
@@ -94,7 +97,7 @@ public class VehicleCategoryService {
         category.setRequiredLicense(dto.getRequiredLicense());
         category.setMaxLoadCapacity(dto.getMaxLoadCapacity());
 
-        VehicleCategory updated = categoryRepository.save(category);
+        VehicleCategory updated = Objects.requireNonNull(categoryRepository.save(category));
         log.info("Vehicle category with ID {} updated successfully", id);
 
         return toResponseDTO(updated);
@@ -103,13 +106,13 @@ public class VehicleCategoryService {
     @Transactional
     public void delete(Long id) {
         log.info("Deleting vehicle category with ID: {}", id);
-
+        Objects.requireNonNull(id, "id must not be null");
         if (!categoryRepository.existsById(id)) {
             throw new ResourceNotFoundException(
                     "Категорію з ID " + id + " не знайдено");
         }
 
-        categoryRepository.deleteById(id);
+        categoryRepository.deleteById(Objects.requireNonNull(id));
         log.info("Vehicle category with ID {} deleted successfully", id);
     }
 
@@ -127,8 +130,9 @@ public class VehicleCategoryService {
     }
 
     public VehicleCategory getEntityById(Long id) {
-        return categoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Категорію з ID " + id + " не знайдено"));
+        Objects.requireNonNull(id, "id must not be null");
+        return Objects.requireNonNull(categoryRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException(
+                "Категорію з ID " + id + " не знайдено")));
     }
 }
