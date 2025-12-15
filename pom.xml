@@ -19,7 +19,7 @@
     <description>Backend API for cadets</description>
 
     <properties>
-        <java.version>21</java.version>
+        <java.version>17</java.version>
         <testcontainers.version>1.19.3</testcontainers.version>
     </properties>
 
@@ -141,6 +141,14 @@
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
             <version>1.5.5.Final</version>
+        </dependency>
+
+        <!-- MapStruct Processor for annotation processing -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-processor</artifactId>
+            <version>1.5.5.Final</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Redis Caching -->
